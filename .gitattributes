@@ -1,0 +1,3 @@
+# Use git auto-detection system to check if a file is textual,
+# if it is, enforce LF line endings regardless of OS or git configurations.
+* text=auto eol=lf

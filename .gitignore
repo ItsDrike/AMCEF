@@ -1,0 +1,40 @@
+# Python byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+.tox/
+venv/
+env/
+ENV/
+
+# Python packaging files
+dist/
+
+# Pytest coverage reports
+htmlcov/
+.coverage*
+coverage.xml
+
+# Pyenv local version information
+.python-version
+
+# Editor generated files
+.idea/
+.vscode/
+.spyproject/
+.spyderproject/
+.replit
+
+# Auto-generated folder attributes for MacOS
+.DS_STORE
+
+# Environmental variables
+*.env
+
+# Local gitignore (symlinked to .git/info/exclude)
+.gitignore_local
