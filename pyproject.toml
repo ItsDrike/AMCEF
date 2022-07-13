@@ -9,6 +9,7 @@ repository = "https://github.com/ItsDrike/AMCEF"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+taskipy = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
@@ -25,6 +26,14 @@ pre-commit = "^2.20.0"
 
 [tool.black]
 line-length = 119
+
+[tool.taskipy.tasks]
+precommit = "pre-commit run install"
+lint = "pre-commit run --all-files"
+black = "black ."
+isort = "isort ."
+pyright = "pyright ."
+flake8 = "flake8 ."
 
 [tool.isort]
 profile = "black"
