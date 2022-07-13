@@ -61,18 +61,49 @@ async def get_user_posts(session: AsyncSession, user_id: int) -> list[models.Pos
 
 
 # endregion
-# region: User
+# region: Member
 
 
-async def get_user(session: AsyncSession, user_id: int) -> models.User:
-    stmt = select(models.User).filter(models.User.user_id == user_id)
+async def make_blank_member(session: AsyncSession) -> models.Member:
+    db_model = models.Member()
+    session.add(db_model)
+    await session.commit()
+    await session.refresh(db_model)
+    return db_model
+
+
+async def get_member(session: AsyncSession, member_id: int) -> models.Member:
+    stmt = select(models.Member).filter(models.Member.member_id == member_id)
     r = await session.execute(stmt)
     db_model = r.scalars().first()
     return db_model
 
 
-async def add_user(session: AsyncSession, schema: schemas.User) -> models.User:
-    db_model = models.User(**schema.dict())
+async def delete_member(session: AsyncSession, member_id: int) -> bool:
+    db_model = await get_member(session, member_id)
+    if db_model is None:
+        return False
+    await session.delete(db_model)
+    await session.commit()
+    return True
+
+
+async def update_member(
+    session: AsyncSession,
+    member_id: int,
+    *,
+    is_admin: Optional[bool] = None,
+    key_salt: Optional[str] = None,
+) -> Optional[models.Member]:
+    db_model = await get_member(session, member_id)
+    if db_model is None:
+        return None
+
+    if is_admin is not None:
+        db_model.is_admin = is_admin
+    if key_salt is not None:
+        db_model.key_salt = key_salt
+
     session.add(db_model)
     await session.commit()
     await session.refresh(db_model)

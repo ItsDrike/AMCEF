@@ -44,7 +44,7 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(403, AuthState.INVALID_TOKEN.value)
 
         db_session = request.state.db_session
-        user = await crud.get_user(db_session, int(token_data["id"]))
+        user = await crud.get_member(db_session, int(token_data["id"]))
 
         if user is None or user.key_salt != token_data["salt"]:
             raise HTTPException(403, AuthState.INVALID_TOKEN.value)
@@ -58,23 +58,29 @@ class JWTBearer(HTTPBearer):
         return credentials
 
 
-def _make_user_token(user_id: int) -> tuple[str, str]:
+def _make_member_token(member_id: int) -> tuple[str, str]:
     """
-    Generate a JWT token for given user_id.
+    Generate a JWT token for given member_id.
 
     Returns a tuple of the JWT token, and the token salt.
     """
     # 22 characters long string
     token_salt = secrets.token_urlsafe(16)
-    token_data = {"id": user_id, "salt": token_salt}
+    token_data = {"id": member_id, "salt": token_salt}
     token = jwt.encode(token_data, Server.JWT_SECRET, algorithm="HS256")
     return token, token_salt
 
 
-async def generate_user_token(db_session: AsyncSession, user_id: int, is_admin: bool = False) -> str:
-    """Generate a new API token for given user and store this user into the database."""
+async def reset_member(db_session: AsyncSession, member_id: int, *, is_admin: bool = False) -> schemas.TokenMemberData:
+    """Generate a new API token for given member and update the user data to match."""
+    token, token_salt = _make_member_token(member_id)
+    await crud.update_member(db_session, member_id, is_admin=is_admin, key_salt=token_salt)
+    ret = schemas.TokenMemberData(member_id=member_id, api_token=token, is_admin=is_admin)
+    return ret
 
-    token, token_salt = _make_user_token(user_id)
-    user = schemas.User(user_id=user_id, is_admin=is_admin, key_salt=token_salt)
-    await crud.add_user(db_session, user)
-    return token
+
+async def generate_member(db_session: AsyncSession, *, is_admin: bool = False) -> schemas.TokenMemberData:
+    """Generate and store a new member, returning their API token and user id."""
+    new_user = await crud.make_blank_member(db_session)
+    member_data = await reset_member(db_session, new_user.member_id, is_admin=is_admin)
+    return member_data

@@ -12,9 +12,9 @@ class Post(Base):
     body = Column(String)
 
 
-class User(Base):
-    __tablename__ = "users"
+class Member(Base):
+    __tablename__ = "members"
 
-    user_id = Column(Integer, primary_key=True)
-    key_salt = Column(String)
-    is_admin = Column(Boolean)
+    member_id = Column(Integer, primary_key=True, index=True)
+    key_salt = Column(String, nullable=True)
+    is_admin = Column(Boolean, default=False)

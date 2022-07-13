@@ -24,16 +24,19 @@ class Post(PostCreate):
 
 
 # endregion
-# region: User
+# region: Member
 
 
-class UserBase(BaseModel):
-    user_id: int
+class MemberData(BaseModel):
+    member_id: int
     is_admin: bool
-
-
-class User(UserBase):
-    key_salt: str
 
     class Config:
         orm_mode = True
+
+
+class TokenMemberData(MemberData):
+    api_token: str
+
+
+# endregion
