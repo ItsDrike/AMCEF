@@ -1,11 +1,9 @@
 import logging
 from collections.abc import Awaitable, Callable
-from typing import cast
 
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import Response
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.endpoints import user_posts
 from src.models import Base
@@ -27,20 +25,20 @@ async def startup() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    app.state.db_session = SessionLocal()
+
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
     """Close the connections/sessions."""
     log.info("API Server stopping...")
     await engine.dispose()
+    await app.state.db_session.close()
 
 
 @app.middleware("http")
 async def setup_data(request: Request, callnext: Callable[[Request], Awaitable[Response]]) -> Response:
     """Attach references to database session for the request."""
-    db = cast(AsyncSession, SessionLocal())
-    try:
-        request.state.db_session = db
-        return await callnext(request)
-    finally:
-        await db.close()
+    request.state.httpx_client = app.state.httpx_client
+    request.state.db_session = app.state.db_session
+    return await callnext(request)
