@@ -10,6 +10,8 @@ repository = "https://github.com/ItsDrike/AMCEF"
 [tool.poetry.dependencies]
 python = "^3.10"
 taskipy = "^1.10.2"
+fastapi = "^0.78.0"
+uvicorn = "^0.18.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
@@ -35,6 +37,8 @@ black = "black ."
 isort = "isort ."
 pyright = "pyright ."
 flake8 = "flake8 ."
+run = "uvicorn src.__init__:app"
+run-dev = "uvicorn --reload src.__init__:app"
 
 [tool.isort]
 profile = "black"
