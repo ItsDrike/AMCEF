@@ -1,18 +1,20 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.requests import Request
 from fastapi.responses import Response
 
 from src import crud, models, schemas
+from src.utils.auth import JWTBearer
 from src.utils.external_api import ensure_valid_user_id, lookup_post
 
 log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["User posts endpoints"])
+member_router = APIRouter(dependencies=[Depends(JWTBearer())])
 
 
-@router.post("/post", response_model=schemas.Post)
+@member_router.post("/post", response_model=schemas.Post)
 async def create_post(request: Request, data: schemas.PostCreate) -> models.Post:
     """Create a new user post and return the created post."""
     db_session = request.state.db_session
@@ -52,7 +54,7 @@ async def get_post(request: Request, post_id: int) -> models.Post:
     return db_post
 
 
-@router.patch("/post/{post_id}", response_model=schemas.Post)
+@member_router.patch("/post/{post_id}", response_model=schemas.Post)
 async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) -> models.Post:
     """Update title or body of a post with given `post_id`"""
     db_session = request.state.db_session
@@ -63,7 +65,7 @@ async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) 
     return db_post
 
 
-@router.delete("/post/{post_id}")
+@member_router.delete("/post/{post_id}")
 async def delete_post(request: Request, post_id: int) -> Response:
     """Delete post with given `post_id` from the database."""
     db_session = request.state.db_session
@@ -84,3 +86,6 @@ async def get_posts(request: Request, user_id: int) -> list[models.Post]:
 
     db_posts = await crud.get_user_posts(db_session, user_id)
     return db_posts
+
+
+router.include_router(member_router)
