@@ -14,6 +14,8 @@ fastapi = "^0.78.0"
 uvicorn = "^0.18.2"
 coloredlogs = "^15.0.1"
 python-decouple = "^3.6"
+SQLAlchemy = {extras = ["asyncio"], version = "^1.4.39"}
+asyncpg = "^0.26.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
