@@ -1,6 +1,7 @@
 import logging
 from collections.abc import Awaitable, Callable
 
+import httpx
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import Response
@@ -25,6 +26,7 @@ async def startup() -> None:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    app.state.httpx_client = httpx.AsyncClient()
     app.state.db_session = SessionLocal()
 
 
@@ -33,6 +35,7 @@ async def shutdown() -> None:
     """Close the connections/sessions."""
     log.info("API Server stopping...")
     await engine.dispose()
+    await app.state.httpx_client.aclose()
     await app.state.db_session.close()
 
 
