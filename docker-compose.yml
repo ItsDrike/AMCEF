@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_DB: amcef
+      POSTGRES_PASSWORD: amcef
+      POSTGRES_USER: amcef
+    ports:
+      - "127.0.0.1:5000:5432"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/amcef_api:ro
+    tty: true
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8000:80"
+    environment:
+      DATABASE_URL: amcef:amcef@postgres:5432/amcef
