@@ -71,13 +71,10 @@ def _make_user_token(user_id: int) -> tuple[str, str]:
     return token, token_salt
 
 
-async def generate_user_token(db_session: AsyncSession, user_id: int) -> str:
+async def generate_user_token(db_session: AsyncSession, user_id: int, is_admin: bool = False) -> str:
     """Generate a new API token for given user and store this user into the database."""
 
     token, token_salt = _make_user_token(user_id)
-    # TODO: Obtain admin status from config somewhere
-    is_admin = False
-
     user = schemas.User(user_id=user_id, is_admin=is_admin, key_salt=token_salt)
     await crud.add_user(db_session, user)
     return token
