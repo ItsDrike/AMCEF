@@ -16,11 +16,13 @@ async def ensure_valid_user_id(httpx_client: httpx.AsyncClient, user_id: int) ->
     We do this here instead of in the Post model schema because we're making an asynchronous
     request and pydantic doesn't support async validators.
     """
-    response = await httpx_client.get(f"{Connection.API_BASE_URL}/users")
-    users = response.json()
-    for user in users:
-        if user["id"] == user_id:
-            return
+    response = await httpx_client.get(f"{Connection.API_BASE_URL}/users/{user_id}")
+    if response.status_code == 200:
+        return
+    if response.status_code != 404:
+        # Make sure we exit loudly with HTTPError from httpx in case the API fails
+        # this should produce HTTP code 500 when unhandled within route
+        response.raise_for_status()
 
     # Use the same convention as default FastAPI 422 on pydantic validation error
     err_details = {
