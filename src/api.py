@@ -7,6 +7,7 @@ from fastapi.requests import Request
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.endpoints import user_posts
 from src.models import Base
 from src.utils.database import SessionLocal, engine
 from src.utils.log import setup_logging
@@ -14,6 +15,7 @@ from src.utils.log import setup_logging
 log = logging.getLogger(__name__)
 
 app = FastAPI()
+app.include_router(user_posts.router)
 
 
 @app.on_event("startup")
