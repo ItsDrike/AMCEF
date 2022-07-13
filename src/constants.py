@@ -1,6 +1,7 @@
 from typing import Optional, cast
 
 from decouple import config
+from fastapi.templating import Jinja2Templates
 
 
 def _str_config(search_path: str, *args, **kwargs) -> str:
@@ -22,3 +23,9 @@ class Connection:
 
     DATABASE_URL = _str_config("DATABASE_URL")
     API_BASE_URL = _str_config("API_BASE_URL", default="https://jsonplaceholder.typicode.com")
+
+
+class Server:
+    """Configuration related to the API server itself."""
+
+    TEMPLATES = Jinja2Templates(directory="src/templates")

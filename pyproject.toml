@@ -17,6 +17,7 @@ python-decouple = "^3.6"
 SQLAlchemy = {extras = ["asyncio"], version = "^1.4.39"}
 asyncpg = "^0.26.0"
 httpx = "^0.23.0"
+Jinja2 = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"

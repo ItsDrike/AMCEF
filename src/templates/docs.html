@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block subtitle %}API Documentation{% endblock %}
+
+{% block head %}
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
+{% endblock %}
+
+{% block body %}
+    <rapi-doc
+        spec-url="/openapi.json"
+        show-header = "false"
+        theme="dark"
+        render-style="read"
+        >
+        <div slot="nav-logo">
+            <p style="text-align: center;"><b>AMCEF Test API</b></p>
+        </div>
+    </rapi-doc>
+{% endblock %}
