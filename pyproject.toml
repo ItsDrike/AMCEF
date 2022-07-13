@@ -26,6 +26,7 @@ pre-commit = "^2.20.0"
 
 [tool.black]
 line-length = 119
+extend-exclude = "^/.cache"
 
 [tool.taskipy.tasks]
 precommit = "pre-commit run install"
@@ -42,7 +43,7 @@ atomic = true
 order_by_type = false
 case_sensitive = true
 combine_as_imports = true
-skip = [".venv", ".git"]
+skip = [".venv", ".git", ".cache"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
