@@ -12,6 +12,8 @@ from sqlalchemy.future import select
 
 from src import models, schemas
 
+# region: Post
+
 
 async def get_post(session: AsyncSession, id: int) -> Optional[models.Post]:
     stmt = select(models.Post).filter(models.Post.id == id)
@@ -56,3 +58,25 @@ async def get_user_posts(session: AsyncSession, user_id: int) -> list[models.Pos
     r = await session.execute(stmt)
     db_models = r.scalars().fetchall()
     return db_models
+
+
+# endregion
+# region: User
+
+
+async def get_user(session: AsyncSession, user_id: int) -> models.User:
+    stmt = select(models.User).filter(models.User.user_id == user_id)
+    r = await session.execute(stmt)
+    db_model = r.scalars().first()
+    return db_model
+
+
+async def add_user(session: AsyncSession, schema: schemas.User) -> models.User:
+    db_model = models.User(**schema.dict())
+    session.add(db_model)
+    await session.commit()
+    await session.refresh(db_model)
+    return db_model
+
+
+# endregion

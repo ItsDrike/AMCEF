@@ -28,4 +28,5 @@ class Connection:
 class Server:
     """Configuration related to the API server itself."""
 
+    JWT_SECRET = _str_config("JWT_SECRET")
     TEMPLATES = Jinja2Templates(directory="src/templates")
