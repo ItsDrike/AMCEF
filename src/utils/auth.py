@@ -12,7 +12,7 @@ from src.constants import Server
 
 
 class AuthState(Enum):
-    """Represents possible outcomes of a user attempting to authorize."""
+    """Represents possible outcomes of a member attempting to authorize."""
 
     NO_TOKEN = (
         "There is no token provided, provide one in an Authorization header in the format 'Bearer {your token here}'."
@@ -44,16 +44,16 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(403, AuthState.INVALID_TOKEN.value)
 
         db_session = request.state.db_session
-        user = await crud.get_member(db_session, int(token_data["id"]))
+        member = await crud.get_member(db_session, int(token_data["id"]))
 
-        if user is None or user.key_salt != token_data["salt"]:
+        if member is None or member.key_salt != token_data["salt"]:
             raise HTTPException(403, AuthState.INVALID_TOKEN.value)
-        elif self.require_admin and not user.is_admin:
+        elif self.require_admin and not member.is_admin:
             raise HTTPException(403, AuthState.NEEDS_ADMIN.value)
 
-        # Token is valid, store the user_id and is_admin data into the request
-        request.state.user_id = user.user_id
-        request.state.is_admin = user.is_admin
+        # Token is valid, store the member_id and is_admin data into the request
+        request.state.member = member.member_id
+        request.state.is_admin = member.is_admin
 
         return credentials
 
@@ -72,7 +72,7 @@ def _make_member_token(member_id: int) -> tuple[str, str]:
 
 
 async def reset_member(db_session: AsyncSession, member_id: int, *, is_admin: bool = False) -> schemas.TokenMemberData:
-    """Generate a new API token for given member and update the user data to match."""
+    """Generate a new API token for given member and update the member data to match."""
     token, token_salt = _make_member_token(member_id)
     await crud.update_member(db_session, member_id, is_admin=is_admin, key_salt=token_salt)
     ret = schemas.TokenMemberData(member_id=member_id, api_token=token, is_admin=is_admin)
@@ -80,7 +80,7 @@ async def reset_member(db_session: AsyncSession, member_id: int, *, is_admin: bo
 
 
 async def generate_member(db_session: AsyncSession, *, is_admin: bool = False) -> schemas.TokenMemberData:
-    """Generate and store a new member, returning their API token and user id."""
-    new_user = await crud.make_blank_member(db_session)
-    member_data = await reset_member(db_session, new_user.member_id, is_admin=is_admin)
+    """Generate and store a new member, returning their API token and member id."""
+    new_member = await crud.make_blank_member(db_session)
+    member_data = await reset_member(db_session, new_member.member_id, is_admin=is_admin)
     return member_data
