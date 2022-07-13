@@ -49,3 +49,10 @@ async def update_post(session: AsyncSession, post_id: int, schema: schemas.PostU
     await session.commit()
     await session.refresh(db_model)
     return db_model
+
+
+async def get_user_posts(session: AsyncSession, user_id: int) -> list[models.Post]:
+    stmt = select(models.Post).filter(models.Post.user_id == user_id)
+    r = await session.execute(stmt)
+    db_models = r.scalars().fetchall()
+    return db_models

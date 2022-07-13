@@ -65,3 +65,11 @@ async def delete_post(request: Request, post_id: int) -> Response:
     if status is False:
         raise HTTPException(404, "No such post")
     return Response(status_code=200)
+
+
+@router.get("/posts/{user_id}", response_model=list[schemas.Post])
+async def get_posts(request: Request, user_id: int) -> list[models.Post]:
+    db_session = request.state.db_session
+
+    db_posts = await crud.get_user_posts(db_session, user_id)
+    return db_posts
