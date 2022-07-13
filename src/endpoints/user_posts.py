@@ -14,6 +14,7 @@ router = APIRouter(tags=["User posts endpoints"])
 
 @router.post("/post", response_model=schemas.Post)
 async def create_post(request: Request, data: schemas.PostCreate) -> models.Post:
+    """Create a new user post and return the created post."""
     db_session = request.state.db_session
     httpx_client = request.state.httpx_client
 
@@ -38,6 +39,10 @@ async def create_post(request: Request, data: schemas.PostCreate) -> models.Post
 
 @router.get("/post/{post_id}", response_model=schemas.Post)
 async def get_post(request: Request, post_id: int) -> models.Post:
+    """Obtain a post with given `post_id`.
+
+    Note: If post with this id is not found in the cache database, this will perform an API lookup.
+    """
     db_session = request.state.db_session
     httpx_client = request.state.httpx_client
 
@@ -49,6 +54,7 @@ async def get_post(request: Request, post_id: int) -> models.Post:
 
 @router.patch("/post/{post_id}", response_model=schemas.Post)
 async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) -> models.Post:
+    """Update title or body of a post with given `post_id`"""
     db_session = request.state.db_session
 
     db_post = await crud.update_post(db_session, post_id, data)
@@ -59,6 +65,7 @@ async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) 
 
 @router.delete("/post/{post_id}")
 async def delete_post(request: Request, post_id: int) -> Response:
+    """Delete post with given `post_id` from the database."""
     db_session = request.state.db_session
 
     status = await crud.delete_post(db_session, post_id)
@@ -69,6 +76,10 @@ async def delete_post(request: Request, post_id: int) -> Response:
 
 @router.get("/posts/{user_id}", response_model=list[schemas.Post])
 async def get_posts(request: Request, user_id: int) -> list[models.Post]:
+    """Obtain a list of all posts with given `user_id`.
+
+    Note: This only obtains posts from the cached database, it does not perform an API lookup.
+    """
     db_session = request.state.db_session
 
     db_posts = await crud.get_user_posts(db_session, user_id)
