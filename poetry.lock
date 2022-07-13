@@ -415,7 +415,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyright"
-version = "1.1.259"
+version = "1.1.258"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -580,7 +580,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "ae7048cdc7ccedf53fbf7327832368c8842e43c99dc75026129bb6b9d3c991ae"
+content-hash = "8d70c5d61c2798f205eb085be959442c472abe88cf0fa19dbfa8688d302fd5be"
 
 [metadata.files]
 anyio = []
@@ -823,10 +823,7 @@ pyreadline3 = [
     {file = "pyreadline3-3.4.1-py3-none-any.whl", hash = "sha256:b0efb6516fd4fb07b45949053826a62fa4cb353db5be2bbb4a7aa1fdd1e345fb"},
     {file = "pyreadline3-3.4.1.tar.gz", hash = "sha256:6f3d1f7b8a31ba32b73917cefc1f28cc660562f39aea8646d30bd6eff21f7bae"},
 ]
-pyright = [
-    {file = "pyright-1.1.259-py3-none-any.whl", hash = "sha256:8467022721d5b7b68f883273272c3a3de31738ad8330af4b2f908ee0f6c105e2"},
-    {file = "pyright-1.1.259.tar.gz", hash = "sha256:b87dac5241c6e40cfa0d80a8cd660342507dd6fc2f7b8a3bdeb4a44e3bdbdc76"},
-]
+pyright = []
 python-decouple = []
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
