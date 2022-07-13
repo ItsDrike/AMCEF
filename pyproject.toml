@@ -12,6 +12,8 @@ python = "^3.10"
 taskipy = "^1.10.2"
 fastapi = "^0.78.0"
 uvicorn = "^0.18.2"
+coloredlogs = "^15.0.1"
+python-decouple = "^3.6"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
@@ -38,7 +40,7 @@ isort = "isort ."
 pyright = "pyright ."
 flake8 = "flake8 ."
 run = "uvicorn src.__init__:app"
-run-dev = "uvicorn --reload src.__init__:app"
+run-dev = "DEBUG=1 uvicorn --reload src.__init__:app"
 
 [tool.isort]
 profile = "black"
