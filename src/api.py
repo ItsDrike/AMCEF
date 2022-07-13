@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from src.constants import Server
-from src.endpoints import user_posts
+from src.endpoints import admin, user_posts
 from src.models import Base
 from src.utils.database import SessionLocal, engine
 from src.utils.log import setup_logging
@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 app = FastAPI(docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 app.include_router(user_posts.router)
+app.include_router(admin.router)
 
 
 @app.on_event("startup")

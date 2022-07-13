@@ -29,4 +29,5 @@ class Server:
     """Configuration related to the API server itself."""
 
     JWT_SECRET = _str_config("JWT_SECRET")
+    SHOW_ADMIN_ENDPOINTS = Logging.DEBUG
     TEMPLATES = Jinja2Templates(directory="src/templates")
