@@ -21,3 +21,4 @@ class Connection:
     """Config related to external connections (such as to a database)."""
 
     DATABASE_URL = _str_config("DATABASE_URL")
+    API_BASE_URL = _str_config("API_BASE_URL", default="https://jsonplaceholder.typicode.com")

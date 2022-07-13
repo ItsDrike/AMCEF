@@ -4,6 +4,7 @@ from fastapi.requests import Request
 from fastapi.responses import Response
 
 from src import crud, models, schemas
+from src.constants import Connection
 
 router = APIRouter(tags=["User posts endpoints"])
 
@@ -15,7 +16,7 @@ async def ensure_valid_user_id(httpx_client: httpx.AsyncClient, user_id: int) ->
     We do this here instead of in the Post model schema because we're making an asynchronous
     request and pydantic doesn't support async validators.
     """
-    response = await httpx_client.get("https://jsonplaceholder.typicode.com/users")
+    response = await httpx_client.get(f"{Connection.API_BASE_URL}/users")
     users = response.json()
     for user in users:
         if user["id"] == user_id:
