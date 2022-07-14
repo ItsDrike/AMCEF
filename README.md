@@ -28,7 +28,8 @@ This project requires defining these variables:
 DATABASE_URL="amcef:amcef@127.0.0.1:5000/amcef"
 # URL for the external API to fetch and verify data against. Value below is default
 API_BASE_URL="https://jsonplaceholder.typicode.com"
-# When set to a truthy value, log level will be set to debug
+# When set to a truthy value, log level will be set to debug and admin endpoints will
+# be shown in the API docs
 DEBUG=1
 # When set, a log file will be generated with given name. Note that if docker is used,
 # this log file will be generated within the container
@@ -37,6 +38,38 @@ LOG_FILE="output.log"
 # up to given file size in bytes.
 LOG_MAX_FILE_SIZE=1000000
 ```
+
+## Adding a new admin member for the API
+
+To meaningfully use the API, you will need at least one admin member API token. While there are some unrestricted
+endpoints such as GET on `/posts/{post_id}`, endpoints which actually edit some information are restricted and can only
+be used with a valid member API token.
+
+An admin level token can also access some privileged endpoints, like the POST on `/member`, with which new API members
+can be easily created (both admins and non-admins).
+
+To initially get an admin level API token, you can simply run the `/make_member.py` script. If you're running manually
+(without using docker), this is as simple as running the script from the project's root. However if you are using
+docker, you'll need to run a command from within that container. To do that, you can simply use `doceker-compose run
+api [command]` where the command can simply be `./make_member.py`, executing the script.
+
+After running the script, you will see a long string of random characters, which will be your API token, and a user id,
+which is mostly irrelevant to you. You will want to copy this token and use it as described in the section below.
+
+![image](https://user-images.githubusercontent.com/20902250/178942172-63c28591-0098-43ef-b764-7b336cbd2b81.png)
+
+## Using an API token
+
+This API uses a so called "Bearer scheme" authentication. This is a commonly used format, where in order to make
+authenticated requests, you'll need to set the `Authentication` header with value of `Bearer [your_token]`.
+
+As an example, here's a request to POST on `/post` endpoint using curl:
+```bash
+curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic2FsdCI6Im9iV3cxb0tVLWJ4eXR5SzBTUE0xNHcifQ.gmyviS8MTijK4MCPf3TKBqbmct1W9QqwkR7ynR0VWBc" -X POST http://localhost:8000/post --json '{"user_id": 1, "title: "Sample post", "body": "Some content"}'
+```
+
+Note that this is just an example token, you will need to get your token from an admin, or by generating it with
+`./make_member.py` script, as described in the above section.
 
 ## API Documentation
 
