@@ -47,6 +47,8 @@ pyright = "pyright ."
 flake8 = "flake8 ."
 run = "uvicorn src.__init__:app"
 run-dev = "DEBUG=1 uvicorn --reload src.__init__:app"
+make-migrations = "alembic revision --autogenerate"
+apply-migrations = "alembic upgrade head"
 
 [tool.isort]
 profile = "black"
