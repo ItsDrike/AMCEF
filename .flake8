@@ -2,7 +2,7 @@
 max_line_length=120
 extend-ignore=E203 # flake8 has conflicting handling with black here
 application-import-names=src
-exclude=.venv,.git,.cache
+exclude=.venv,.git,.cache,alembic/**
 ignore=
     ANN002, # *args
     ANN003, # **kwargs
