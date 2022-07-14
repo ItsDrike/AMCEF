@@ -5,6 +5,17 @@
 This project uses `docker-compose` to setup the stack quickly. Running `docker-compose up` after setting up environment
 variables will start the development server on `http://localhost:8000`.
 
+## Manual installation - without docker
+
+If desired, the project can also be ran on it's own without docker containerization. This is useful when you already
+have a PostgreSQL database ready and you don't want to spin up a new one. In this case you'll need to install `poetry`,
+which is a tool used for managing python requirements and virtual environments. To install it, run `pip install
+poetry`. After that, make sure you're in the root directory of the project and run `poetry install`. This will install
+all project dependencies (including the development dependencies, such as linters, if you only want the production
+dependencies, use `--no-dev` flag).
+
+To run the project, you can then use `poetry run task run` (or `poetry run task run-dev` for debug logs and reloading).
+
 ## Environment Variables
 
 For the project to work properly, you need to define all environment variables in `.env` file, which is then picked up
@@ -26,17 +37,6 @@ LOG_FILE="output.log"
 # up to given file size in bytes.
 LOG_MAX_FILE_SIZE=1000000
 ```
-
-## Manual installation - without docker
-
-If desired, the project can also be ran on it's own without docker containerization. This is useful when you already
-have a PostgreSQL database ready and you don't want to spin up a new one. In this case you'll need to install `poetry`,
-which is a tool used for managing python requirements and virtual environments. To install it, run `pip install
-poetry`. After that, make sure you're in the root directory of the project and run `poetry install`. This will install
-all project dependencies (including the development dependencies, such as linters, if you only want the production
-dependencies, use `--no-dev` flag).
-
-To run the project, you can then use `poetry run task run` (or `poetry run task run-dev` for debug logs and reloading).
 
 ## API Documentation
 
