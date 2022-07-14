@@ -54,7 +54,8 @@ docker, you'll need to run a command from within that container. To do that, you
 api [command]` where the command can simply be `./make_member.py`, executing the script.
 
 After running the script, you will see a long string of random characters, which will be your API token, and a user id,
-which is mostly irrelevant to you. You will want to copy this token and use it as described in the section below.
+which is mostly irrelevant to you. You will want to copy this token and use it as described in the
+[section below](#using-an-api-token).
 
 ![image](https://user-images.githubusercontent.com/20902250/178942172-63c28591-0098-43ef-b764-7b336cbd2b81.png)
 
@@ -69,7 +70,7 @@ curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6M
 ```
 
 Note that this is just an example token, you will need to get your token from an admin, or by generating it with
-`./make_member.py` script, as described in the above section.
+`./make_member.py` script, as described in the [above section](#adding-a-new-admin-member-for-the-api).
 
 ## API Documentation
 
