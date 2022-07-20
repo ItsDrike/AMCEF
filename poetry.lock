@@ -483,7 +483,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyright"
-version = "1.1.258"
+version = "1.1.262"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -662,7 +662,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "294c3e91337c5253101689b6c4f6c6d15e10b63e4f9bf85b199e04ddb3051a66"
+content-hash = "aaf4d7be2303dbdeabae26edfeffa427108d2bf645aa7c297525c94d9da69e32"
 
 [metadata.files]
 anyio = [
@@ -1033,8 +1033,8 @@ pyreadline3 = [
     {file = "pyreadline3-3.4.1.tar.gz", hash = "sha256:6f3d1f7b8a31ba32b73917cefc1f28cc660562f39aea8646d30bd6eff21f7bae"},
 ]
 pyright = [
-    {file = "pyright-1.1.258-py3-none-any.whl", hash = "sha256:2b40179a6fe70be75104500de2b2eb1e7b3ebd1ba130db96f4f1921fc98f37cd"},
-    {file = "pyright-1.1.258.tar.gz", hash = "sha256:9209bffb23421c82fd4aa6d4f8346e8bfeea897b38e604722652f01f7070ad68"},
+    {file = "pyright-1.1.262-py3-none-any.whl", hash = "sha256:ad9f6dd33f0039e0f0f9bc81e5c07a445d14a65e6dcf67c5ca1c75b5d9ae9f9f"},
+    {file = "pyright-1.1.262.tar.gz", hash = "sha256:3c77ccaca6e273b0f3a7b13efd0d0a225616e8334c428c4dc0d03453896645b5"},
 ]
 python-decouple = [
     {file = "python-decouple-3.6.tar.gz", hash = "sha256:2838cdf77a5cf127d7e8b339ce14c25bceb3af3e674e039d4901ba16359968c7"},
