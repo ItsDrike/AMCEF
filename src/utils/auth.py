@@ -52,7 +52,7 @@ class JWTBearer(HTTPBearer):
             raise HTTPException(403, AuthState.NEEDS_ADMIN.value)
 
         # Token is valid, store the member_id and is_admin data into the request
-        request.state.member = member.member_id
+        request.state.member_id = member.member_id
         request.state.is_admin = member.is_admin
 
         return credentials
