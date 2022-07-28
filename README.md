@@ -26,6 +26,9 @@ This project requires defining these variables:
 # Postgres database URL. Set automatically when using docker-compose.
 # Note that the URL shouldn't include the scheme part - 'postgres://', it's already assumed
 DATABASE_URL="amcef:amcef@127.0.0.1:5000/amcef"
+# Redis database URL. Set automatically when using docker-compose.
+# Note that the URL should include the schema part - 'redis://'
+REDIS_URL=redis://<address>:<port>/<db id>?password=<password>
 # URL for the external API to fetch and verify data against. Value below is default
 API_BASE_URL="https://jsonplaceholder.typicode.com"
 # When set to a truthy value, log level will be set to debug and admin endpoints will
