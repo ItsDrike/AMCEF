@@ -10,6 +10,11 @@ services:
     ports:
       - "127.0.0.1:5000:5432"
 
+  redis:
+    image: redis:latest
+    ports:
+      - "127.0.0.1:6379:6379"
+
   api:
     build:
       context: .
@@ -19,9 +24,11 @@ services:
     tty: true
     depends_on:
       - postgres
+      - redis
     env_file:
       - .env
     ports:
       - "127.0.0.1:8000:80"
     environment:
       DATABASE_URL: amcef:amcef@postgres:5432/amcef
+      REDIS_URL: redis://redis:6379
