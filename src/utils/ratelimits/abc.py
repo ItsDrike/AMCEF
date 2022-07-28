@@ -1,10 +1,13 @@
 import itertools
 import logging
+import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable
 from functools import wraps
+from time import time
 from typing import Generic, ParamSpec, TypeVar, cast
 
+from aioredis import Redis
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse, Response
 
@@ -175,3 +178,66 @@ class BucketBase(ABC, Generic[T]):
     async def get_reset_time(self, bucket_key: T) -> int:
         """Get the time until available interactions are reset back to the original amount for given bucket."""
         raise NotImplementedError()
+
+
+class RedisBucketBase(BucketBase[T]):
+    """The base class for all rate-limit buckets backed by Redis."""
+
+    redis: Redis = None  # type: ignore # This will always get set in pre_call
+
+    def get_redis_key(self, bucket_key: T, name: str) -> str:
+        """Get a redis key unique to this bucket and bucket_key for given name."""
+        return f"bucket-{self.bucket_no}-{bucket_key}-{name}"
+
+    async def pre_call(self, request: Request) -> None:
+        """Get redis pool from the request state data before handling a request to rate-limited route."""
+        await super().pre_call(request)
+        if self.redis is None:
+            self.redis = request.state.redis_pool
+
+    async def get_remaining_requests(self, bucket_key: T) -> int:
+        redis_key = self.get_redis_key(bucket_key, "interaction")
+
+        # Cleanup expired entries
+        await self.redis.zremrangebyscore(redis_key, max=time(), min=0)
+
+        # Get still active entries and subtract them from total allowed requests, getting the reminding requests
+        interactions = int(await self.redis.zcard(redis_key) or 0)
+        return self.requests - interactions
+
+    async def record_interaction(self, bucket_key: T) -> None:
+        redis_key = self.get_redis_key(bucket_key, "interaction")
+
+        # We use UUIDs here as something random and unique for each interaction
+        await self.redis.zadd(redis_key, {str(uuid.uuid4()): time() + self.time_period})
+
+    async def start_cooldown(self, bucket_key: T) -> None:
+        redis_key = self.get_redis_key(bucket_key, "cooldown")
+
+        await self.redis.set(redis_key, 1)
+        await self.redis.expireat(redis_key, int(time() + self.cooldown))
+
+    async def get_cooldown(self, bucket_key: T) -> int:
+        redis_key = self.get_redis_key(bucket_key, "cooldown")
+
+        if not await self.redis.get(redis_key):
+            return 0
+
+        return await self.redis.ttl(redis_key)
+
+    async def get_reset_time(self, bucket_key: T) -> int:
+        redis_key = self.get_redis_key(bucket_key, "interaction")
+
+        # Get the entry (uuid) with highest score (reset time), since score represents time
+        # this will be the interaction entry which will take longest to get reset
+        newest_uuid = await self.redis.zrange(redis_key, 0, 0, desc=True, withscores=True)
+
+        if not newest_uuid:
+            return 0
+
+        # Scores use absolute time stamps, subtract current time to get seconds reminding
+        rem_seconds = int(newest_uuid[0][1] - time())
+
+        # Make sure we don't return a negative number, it's possible that this interaction has
+        # already reached it's reset time and just wasn't removed yet.
+        return max(0, rem_seconds)
