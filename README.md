@@ -72,6 +72,23 @@ curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6M
 Note that this is just an example token, you will need to get your token from an admin, or by generating it with
 `./make_member.py` script, as described in the [above section](#adding-a-new-admin-member-for-the-api).
 
+## Database migrations
+
+We're using `alembic` to handle SQL migrations, which we have 2 taskipy aliases for:
+```bash
+poetry run task apply-migrations
+poetry run task make-migrations
+```
+
+You can use `apply-migrations` whenever you pull in new changes, and there was a change in the database structure.
+Alembic will automatically use the defined migrations to make your database up-to-date with the latest model.
+
+You can use `make-migrations` when making changes to the database during development. You should always run this
+command right after editing the database models, and before actually making the changes into database. Alembic will
+then automatically pick up on the differences between the model and the actual db, and generate migrations based on
+that (this might require intervention though). After that, you should run `apply-migrations` to actually update the
+database with alembic, according to this new migration.
+
 ## API Documentation
 
 The documentation is generated with rapidoc using the automatically generated openapi schema. This documentation will
