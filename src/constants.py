@@ -59,3 +59,11 @@ class Server:
     JWT_SECRET = _get_config("JWT_SECRET")
     SHOW_ADMIN_ENDPOINTS = Logging.DEBUG
     TEMPLATES = Jinja2Templates(directory="src/templates")
+
+
+class Ratelimits:
+    """Config related to rate limiting."""
+
+    REQUESTS_PER_PERIOD = _get_config("REQUESTS_PER_PERIOD", cast=int, default=3)
+    TIME_PERIOD = _get_config("TIME_PERIOD", cast=int, default=20)  # in seconds
+    COOLDOWN_PERIOD = _get_config("COOLDOWN_PERIOD", cast=int, default=100)  # in seconds

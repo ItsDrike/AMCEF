@@ -5,6 +5,7 @@ from fastapi.requests import Request
 from fastapi.responses import Response
 
 from src import crud, models, schemas
+from src.constants import Ratelimits
 from src.utils.auth import JWTBearer
 from src.utils.external_api import ensure_valid_user_id, lookup_post
 from src.utils.ratelimits.member_bucket import MemberRedisBucket
@@ -13,7 +14,11 @@ log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["User posts endpoints"])
 member_router = APIRouter(dependencies=[Depends(JWTBearer())])
-member_ratelimit_bucket = MemberRedisBucket(requests=3, time_period=20, cooldown=100)
+member_ratelimit_bucket = MemberRedisBucket(
+    requests=Ratelimits.REQUESTS_PER_PERIOD,
+    time_period=Ratelimits.TIME_PERIOD,
+    cooldown=Ratelimits.COOLDOWN_PERIOD,
+)
 
 
 @member_ratelimit_bucket
