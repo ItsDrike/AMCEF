@@ -49,6 +49,7 @@ class Connection:
     """Config related to external connections (such as to a database)."""
 
     DATABASE_URL = _get_config("DATABASE_URL")
+    REDIS_URL = _get_config("REDIS_URL")
     API_BASE_URL = _get_config("API_BASE_URL", default="https://jsonplaceholder.typicode.com")
 
 
