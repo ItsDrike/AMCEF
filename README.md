@@ -31,6 +31,7 @@ DATABASE_URL="amcef:amcef@127.0.0.1:5000/amcef"
 REDIS_URL=redis://<address>:<port>/<db id>?password=<password>
 # URL for the external API to fetch and verify data against. Value below is default
 API_BASE_URL="https://jsonplaceholder.typicode.com"
+
 # When set to a truthy value, log level will be set to debug and admin endpoints will
 # be shown in the API docs
 DEBUG=1
@@ -40,6 +41,15 @@ LOG_FILE="output.log"
 # Used in combination with LOG_FILE. If set, the log file content will be getting rotated
 # up to given file size in bytes.
 LOG_MAX_FILE_SIZE=1000000
+
+# How many requests can a member make to rate limited endpoitns in given time period (default 3)
+REQUESTS_PER_PERIOD=3
+# Time period (in seconds) during which a member can make REQUESTS_PER_PERIOD amount of requests
+# (default 20 seconds)
+TIME_PERIOD=20
+# Cooldown period (in seconds), which is trigerred when a member makes more requests than they're
+# allowed (default 100 seconds)
+COOLDOWN_PERIOD=100
 ```
 
 ## Adding a new admin member for the API
