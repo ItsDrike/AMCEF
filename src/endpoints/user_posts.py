@@ -7,13 +7,16 @@ from fastapi.responses import Response
 from src import crud, models, schemas
 from src.utils.auth import JWTBearer
 from src.utils.external_api import ensure_valid_user_id, lookup_post
+from src.utils.ratelimits.member_bucket import MemberRedisBucket
 
 log = logging.getLogger(__name__)
 
 router = APIRouter(tags=["User posts endpoints"])
 member_router = APIRouter(dependencies=[Depends(JWTBearer())])
+member_ratelimit_bucket = MemberRedisBucket(requests=3, time_period=20, cooldown=100)
 
 
+@member_ratelimit_bucket
 @member_router.post("/post", response_model=schemas.Post)
 async def create_post(request: Request, data: schemas.PostCreate) -> models.Post:
     """Create a new user post and return the created post."""
@@ -54,6 +57,7 @@ async def get_post(request: Request, post_id: int) -> models.Post:
     return db_post
 
 
+@member_ratelimit_bucket
 @member_router.patch("/post/{post_id}", response_model=schemas.Post)
 async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) -> models.Post:
     """Update title or body of a post with given `post_id`"""
@@ -65,6 +69,7 @@ async def update_post(request: Request, post_id: int, data: schemas.PostUpdate) 
     return db_post
 
 
+@member_ratelimit_bucket
 @member_router.delete("/post/{post_id}")
 async def delete_post(request: Request, post_id: int) -> Response:
     """Delete post with given `post_id` from the database."""
