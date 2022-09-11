@@ -1,13 +1,14 @@
 import logging
 from collections.abc import Awaitable, Callable
 
+import aioredis
 import httpx
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from src.constants import Server
+from src.constants import Connection, Server
 from src.endpoints import admin, user_posts
 from src.models import Base
 from src.utils.database import SessionLocal, engine
@@ -27,11 +28,22 @@ async def startup() -> None:
     setup_logging()
 
     log.info("API Server starting...")
+    app.state.httpx_client = httpx.AsyncClient()
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-    app.state.httpx_client = httpx.AsyncClient()
     app.state.db_session = SessionLocal()
+
+    redis_pool = aioredis.from_url(
+        Connection.REDIS_URL,
+        encoding="utf-8",
+        decode_responses=True,
+    )
+    # Redis is initialized lazily without actually making a connection,
+    # to ensure that the instance is up and connection can be made,
+    # ping the instance here on initialization (will raise exception on failure)
+    await redis_pool.ping()
+    app.state.redis_pool = redis_pool
 
 
 @app.on_event("shutdown")
