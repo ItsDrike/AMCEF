@@ -1,6 +1,6 @@
 import secrets
 from enum import Enum
-from typing import cast
+from typing import Optional, TypedDict, cast
 
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -9,6 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src import crud, schemas
 from src.constants import Server
+from src.models import Member
+
+
+class TokenData(TypedDict):
+    id: int
+    salt: str
 
 
 class AuthState(Enum):
@@ -24,6 +30,35 @@ class AuthState(Enum):
     NEEDS_ADMIN = "This endpoint is limited to admins."
 
 
+async def validate_token(
+    db_session: AsyncSession,
+    token: Optional[str],
+    *,
+    needs_admin: bool = False,
+) -> tuple[TokenData, Member]:
+    """Check that given token meets specified criteria and matches our database.
+
+    If some criteria will not be met, a 403 HTTPException will be raised. Otherwise, data from the token
+    along with fetched member data from the database will be returned.
+    """
+    if token is None:
+        raise HTTPException(403, AuthState.NO_TOKEN.value)
+
+    try:
+        token_data = cast(TokenData, jwt.decode(token, Server.JWT_SECRET))
+    except JWTError:
+        raise HTTPException(403, AuthState.INVALID_TOKEN.value)
+
+    member = await crud.get_member(db_session, int(token_data["id"]))
+    if member is None or member.ket_salt != token_data["salt"]:
+        raise HTTPException(403, AuthState.INVALID_TOKEN.value)
+
+    if needs_admin and not member.is_admin:
+        raise HTTPException(403, AuthState.NEEDS_ADMIN.value)
+
+    return token_data, member
+
+
 class JWTBearer(HTTPBearer):
     """Dependency for routes to enforce JWT auth."""
 
@@ -35,21 +70,8 @@ class JWTBearer(HTTPBearer):
         """Check if the supplied credentials are valid for this endpoint."""
         credentials = cast(HTTPAuthorizationCredentials, await super().__call__(request))
         jwt_token = credentials.credentials
-        if not jwt_token:
-            raise HTTPException(403, AuthState.NO_TOKEN.value)
-
-        try:
-            token_data = jwt.decode(jwt_token, Server.JWT_SECRET)
-        except JWTError:
-            raise HTTPException(403, AuthState.INVALID_TOKEN.value)
-
         db_session = request.state.db_session
-        member = await crud.get_member(db_session, int(token_data["id"]))
-
-        if member is None or member.key_salt != token_data["salt"]:
-            raise HTTPException(403, AuthState.INVALID_TOKEN.value)
-        elif self.require_admin and not member.is_admin:
-            raise HTTPException(403, AuthState.NEEDS_ADMIN.value)
+        _, member = await validate_token(db_session, jwt_token, needs_admin=self.require_admin)
 
         # Token is valid, store the member_id and is_admin data into the request
         request.state.member_id = member.member_id
