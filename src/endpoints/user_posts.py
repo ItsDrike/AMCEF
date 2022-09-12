@@ -8,6 +8,7 @@ from src import crud, models, schemas
 from src.constants import Ratelimits
 from src.utils.auth import JWTBearer
 from src.utils.external_api import ensure_valid_user_id, lookup_post
+from src.utils.ratelimits.ip_bucket import IPRedisBucket
 from src.utils.ratelimits.member_bucket import MemberRedisBucket
 
 log = logging.getLogger(__name__)
@@ -47,6 +48,7 @@ async def create_post(request: Request, data: schemas.PostCreate) -> models.Post
     return db_post
 
 
+@IPRedisBucket(requests=20, time_period=20, cooldown=50)
 @router.get("/post/{post_id}", response_model=schemas.Post)
 async def get_post(request: Request, post_id: int) -> models.Post:
     """Obtain a post with given `post_id`.
