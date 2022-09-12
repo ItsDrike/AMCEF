@@ -13,10 +13,8 @@ RUN pip install -U poetry
 WORKDIR /amcef_api
 
 # Install project dependencies from poetry.lock
-# Use pip instead of poetry for installation since it's a bit faster
 COPY pyproject.toml poetry.lock ./
-RUN poetry export --without-hashes > requirements.txt
-RUN pip install -U -r requirements.txt
+RUN poetry install
 
 # Copy the source code in last to optimize rebuilding the image
 COPY . .
