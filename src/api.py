@@ -1,12 +1,16 @@
+import asyncio
 import logging
 from collections.abc import Awaitable, Callable
+from typing import cast
 
 import aioredis
+import aioredis.exceptions
 import httpx
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.constants import Connection, Server
 from src.endpoints import admin, user_posts
@@ -22,6 +26,44 @@ app.include_router(user_posts.router)
 app.include_router(admin.router)
 
 
+async def _init_database(retry_time: float = 3) -> AsyncSession:
+    """Try to connect to the database, keep retrying if we fail."""
+    log.debug("Connecting to the database")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except ConnectionRefusedError:
+        log.exception(f"Database connection failed, retrying in {retry_time} seconds...")
+        await asyncio.sleep(retry_time)
+        return await _init_database(retry_time)
+    else:
+        log.debug("Database connection established")
+
+    return cast(AsyncSession, SessionLocal())
+
+
+async def _init_redis(retry_time: float = 3) -> aioredis.Redis:
+    """Try to connect to redis, keep retrying if we fail."""
+    log.debug("Connecting to redis")
+    redis_pool = aioredis.from_url(
+        Connection.REDIS_URL,
+        encoding="utf-8",
+        decode_responses=True,
+    )
+    try:
+        # Redis is initialized lazily, without actually making a connection.
+        # to ensure that the instance is up and connection can be made,
+        # ping the instance here on initialization
+        await redis_pool.ping()
+    except aioredis.exceptions.ConnectionError:
+        log.exception(f"Redis connection failed, retrying in {retry_time} seconds...")
+        await asyncio.sleep(retry_time)
+        return await _init_redis(retry_time)
+    else:
+        log.debug("Redis connection established")
+    return redis_pool
+
+
 @app.on_event("startup")
 async def startup() -> None:
     """Perform initial setup and establish connections/sessions."""
@@ -29,21 +71,8 @@ async def startup() -> None:
 
     log.info("API Server starting...")
     app.state.httpx_client = httpx.AsyncClient()
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    app.state.db_session = SessionLocal()
-
-    redis_pool = aioredis.from_url(
-        Connection.REDIS_URL,
-        encoding="utf-8",
-        decode_responses=True,
-    )
-    # Redis is initialized lazily without actually making a connection,
-    # to ensure that the instance is up and connection can be made,
-    # ping the instance here on initialization (will raise exception on failure)
-    await redis_pool.ping()
-    app.state.redis_pool = redis_pool
+    app.state.db_session = _init_database()
+    app.state.redis_pool = _init_redis()
 
 
 @app.on_event("shutdown")
