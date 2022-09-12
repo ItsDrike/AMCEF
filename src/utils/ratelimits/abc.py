@@ -33,8 +33,8 @@ class BucketBase(ABC, Generic[T]):
         self,
         *,
         requests: int,
-        time_period: int,
-        cooldown: int,
+        time_period: float,
+        cooldown: float,
     ):
         """
         Bucket constructor. Limits are enforced as `requests` per `time_period`.
