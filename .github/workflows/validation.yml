@@ -20,7 +20,6 @@ env:
   POETRY_VIRTUALENVS_CREATE: false
 
   # Specify paths here, so we know what to cache
-  POETRY_CACHE_DIR: ${{ github.workspace }}/.cache/py-user-base
   PYTHONUSERBASE: ${{ github.workspace }}/.cache/py-user-base
   PRE_COMMIT_HOME: ${{ github.workspace }}/.cache/pre-commit-cache
 
@@ -58,10 +57,7 @@ jobs:
       - name: Install dependencies using poetry
         if: steps.python_cache.outputs.cache-hit != 'true'
         run: |
-          # NOTE: installing poetry 1.1.15 explicitly is a temporary fix
-          # for https://github.com/ItsDrike/AMCEF/runs/8295251991?check_suite_focus=true#step:6:209
-          # It seems like poetry 1.2.0 has changed some core logic causing pip to fail installation
-          pip install poetry==1.1.15
+          pip install poetry
           poetry install
 
       # Cache pre-commit environment
