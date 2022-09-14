@@ -49,7 +49,7 @@ jobs:
         id: python_cache
         with:
           path: ${{ env.PYTHONUSERBASE }}
-          key: "python-0-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
+          key: "python-1-${{ runner.os }}-${{ env.PYTHONUSERBASE }}-\
                 ${{ steps.python.outputs.python-version }}-\
                 ${{ hashFiles('./pyproject.toml', './poetry.lock') }}"
 
