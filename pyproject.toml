@@ -32,7 +32,7 @@ flake8-tidy-imports = "^4.8.0"
 pep8-naming = "^0.13.1"
 black = "^22.6.0"
 isort = "^5.10.1"
-pyright = "==1.1.258"
+pyright = "==1.1.275"
 pre-commit = "^2.20.0"
 
 [tool.black]
